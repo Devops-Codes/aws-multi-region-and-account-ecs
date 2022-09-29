@@ -11,7 +11,11 @@ resource "aws_codebuild_project" "build_backend" {
   }
 
   cache {
-    type = "NO_CACHE"
+    modes = [
+      "LOCAL_DOCKER_LAYER_CACHE",
+      "LOCAL_SOURCE_CACHE"
+    ]
+    type = "LOCAL"
   }
 
   environment {
@@ -22,7 +26,7 @@ resource "aws_codebuild_project" "build_backend" {
     image_pull_credentials_type = "CODEBUILD"
 
     environment_variable {
-      name  = "ECR_API_URL"
+      name  = "ECR_REPOSITORY"
       value = aws_ecr_repository.backend.repository_url
     }
   }

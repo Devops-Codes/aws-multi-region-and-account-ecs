@@ -1,0 +1,13 @@
+{
+    "project": "project-name",
+    "environment": "shared",
+    "region": "ap-southeast-1",
+    "eu_region": "eu-central-1",
+    "repository_name": "backend",
+    "default_backend_branch": "master",
+    "vpc_cidr": "10.25.0.0/16",
+    "vpc_cidr_eu": "10.26.0.0/16",
+    "shared_ou_arn": "arn:aws:organizations::000000000000:ou/o-xxxxxxxxxx/ou-xxxx-xxxxxxx",
+    "test_account_id": "111111111111",
+    "prod_account_id": "222222222222"
+}

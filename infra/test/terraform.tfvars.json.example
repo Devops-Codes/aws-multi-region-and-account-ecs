@@ -1,0 +1,8 @@
+{
+    "project": "project-name",
+    "environment": "test",
+    "as_region": "ap-southeast-1",
+    "eu_region": "eu-central-1",
+    "main_domain": "example.com",
+    "domain": "aws-test.example.com"
+}

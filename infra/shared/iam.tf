@@ -51,6 +51,8 @@ data "aws_iam_policy_document" "codepipeline" {
     resources = [
       "${aws_s3_bucket.codepipeline_bucket.arn}",
       "${aws_s3_bucket.codepipeline_bucket.arn}/*",
+      "${aws_s3_bucket.eu_codepipeline_bucket.arn}",
+      "${aws_s3_bucket.eu_codepipeline_bucket.arn}/*",
     ]
   }
 
@@ -64,9 +66,86 @@ data "aws_iam_policy_document" "codepipeline" {
       "*"
     ]
   }
+
+  statement {
+    sid    = "CodePipelineAccessCodeCommit"
+    effect = "Allow"
+    resources = [
+      aws_codecommit_repository.backend.arn,
+    ]
+    actions = [
+      "codecommit:CancelUploadArchive",
+      "codecommit:UploadArchive",
+      "codecommit:BatchGet*",
+      "codecommit:Get*"
+    ]
+  }
+  statement {
+    sid    = "CodePipelineKMSAccess"
+    effect = "Allow"
+    actions = [
+      "kms:DescribeKey",
+      "kms:GenerateDataKey*",
+      "kms:Encrypt",
+      "kms:ReEncrypt*",
+      "kms:Decrypt"
+    ]
+    resources = [
+      aws_kms_key.s3_artifacts.arn,
+      aws_kms_key.eu_s3_artifacts.arn
+    ]
+  }
+
+    statement {
+    sid    = "CodePipelineECSAccess"
+    effect = "Allow"
+    actions = [
+      "*"
+    ]
+    resources = ["*"
+    ]
+  }
 }
 
-# IAM Role for Api Codebuild
+# IAM Role to trigger CodePipeline
+resource "aws_iam_role" "codepipeline_trigger" {
+  name               = "${local.stack_name}-codepipeline-trigger"
+  assume_role_policy = data.aws_iam_policy_document.codepipeline_trigger_assume.json
+}
+
+data "aws_iam_policy_document" "codepipeline_trigger_assume" {
+  statement {
+    sid     = "AssumeEvents"
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role_policy" "codepipeline_trigger_policy" {
+  name = "${local.stack_name}-codepipeline-trigger"
+  role = aws_iam_role.codepipeline_trigger.id
+
+  policy = data.aws_iam_policy_document.codepipeline_trigger_policy.json
+}
+
+data "aws_iam_policy_document" "codepipeline_trigger_policy" {
+  statement {
+    sid    = "TriggerPipeline"
+    effect = "Allow"
+    resources = [
+      aws_codepipeline.backend_pipeline.arn,
+    ]
+    actions = [
+      "codepipeline:StartPipelineExecution"
+    ]
+  }
+}
+
+# IAM Role for Backend Codebuild
 resource "aws_iam_role" "backend_codebuild" {
   name = substr("${local.stack_name}-backend-codebuild-role", 0, 64)
   path = "/service-role/"
@@ -148,7 +227,9 @@ resource "aws_iam_role_policy" "backend_codebuild" {
       ],
       "Resource": [
         "${aws_s3_bucket.codepipeline_bucket.arn}",
-        "${aws_s3_bucket.codepipeline_bucket.arn}/*"
+        "${aws_s3_bucket.codepipeline_bucket.arn}/*",
+                "${aws_s3_bucket.eu_codepipeline_bucket.arn}",
+        "${aws_s3_bucket.eu_codepipeline_bucket.arn}/*"
       ]
     },
           {
@@ -188,8 +269,8 @@ module "test_ecs_deploy_role" {
     aws = aws.test
   }
   stack_name     = local.stack_name
-  shared_account = "411348447134"
-  env_account    = "050685593048"
+  shared_account = data.aws_caller_identity.current.account_id
+  env_account    = var.test_account_id
 }
 
 module "prod_ecs_deploy_role" {
@@ -198,6 +279,6 @@ module "prod_ecs_deploy_role" {
     aws = aws.prod
   }
   stack_name     = local.stack_name
-  shared_account = "411348447134"
-  env_account    = "375257297762"
+  shared_account = data.aws_caller_identity.current.account_id
+  env_account    = var.prod_account_id
 }

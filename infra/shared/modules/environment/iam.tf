@@ -25,7 +25,34 @@ data "aws_iam_policy_document" "ecs_deploy_policy" {
     sid = "ECSPermissions"
     # TODO policy to be less permissive
     actions = [
-      "ecs:*"
+      "ecs:*",
+      "ecr:*"
+    ]
+
+    resources = [
+      "*",
+    ]
+
+    effect = "Allow"
+  }
+    statement {
+    sid = "KMSPermissions"
+    # TODO policy to be less permissive
+    actions = [
+      "kms:*"
+    ]
+
+    resources = [
+      "*",
+    ]
+
+    effect = "Allow"
+  }
+    statement {
+    sid = "S3Permissions"
+    # TODO policy to be less permissive
+    actions = [
+      "s3:*"
     ]
 
     resources = [
