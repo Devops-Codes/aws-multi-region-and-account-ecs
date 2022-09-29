@@ -52,7 +52,7 @@ data "aws_iam_policy_document" "ecs_deploy_policy" {
     sid = "S3Permissions"
     # TODO policy to be less permissive
     actions = [
-      "s3:*"
+      "*"
     ]
 
     resources = [

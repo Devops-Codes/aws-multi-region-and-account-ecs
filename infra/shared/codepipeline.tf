@@ -79,7 +79,7 @@ resource "aws_codepipeline" "backend_pipeline" {
         DeploymentTimeout = "15"
       }
 
-      role_arn = module.test_ecs_deploy_role.deploy_role_arn
+      role_arn = "arn:aws:iam::050685593048:role/doc-ecs-shared-ap-southeast-1-cicd-deploy-role"
       region   = var.eu_region
     }
 
@@ -97,7 +97,7 @@ resource "aws_codepipeline" "backend_pipeline" {
         ServiceName       = "${var.project}-test-${var.region}-backend-ecs-service"
         DeploymentTimeout = "15"
       }
-      role_arn = module.test_ecs_deploy_role.deploy_role_arn
+      role_arn = "arn:aws:iam::050685593048:role/doc-ecs-shared-ap-southeast-1-cicd-deploy-role"
       region   = var.region
     }
   }
@@ -133,7 +133,7 @@ resource "aws_codepipeline" "backend_pipeline" {
         DeploymentTimeout = "15"
       }
 
-      role_arn = module.prod_ecs_deploy_role.deploy_role_arn
+      role_arn = "arn:aws:iam::375257297762:role/doc-ecs-shared-ap-southeast-1-cicd-deploy-role"
       region   = var.eu_region
     }
 
@@ -151,7 +151,7 @@ resource "aws_codepipeline" "backend_pipeline" {
         ServiceName       = "${var.project}-prod-${var.region}-backend-ecs-service"
         DeploymentTimeout = "15"
       }
-      role_arn = module.prod_ecs_deploy_role.deploy_role_arn
+      role_arn = "arn:aws:iam::375257297762:role/doc-ecs-shared-ap-southeast-1-cicd-deploy-role"
       region   = var.region
     }
   }
